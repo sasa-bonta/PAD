@@ -4,6 +4,7 @@ import (
 	"PAD1/broker/cmd"
 	"PAD1/common"
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"github.com/satori/go.uuid"
 	"log"
@@ -42,25 +43,56 @@ func main() {
 			Connection: conn,
 		}
 
-		// Adding new client to the list of clients
-		ps.AddClient(&client)
-
-		fmt.Println("Client connected.")
+		fmt.Println("---------------------------------------")
 
 		// Print client connection address.
 		fmt.Println("Client " + conn.RemoteAddr().String() + " connected.")
 
+		// Adding new client to the list of clients
+		ps.AddClient(&client)
+
 		// Handle connections concurrently in a new goroutine.
-		go handleConnection(conn)
+		go handleConnection(conn, client)
 	}
 }
 
-//func getMessage(conn, net.Conn)  {
-//
-//}
-
 // handleConnection handles logic for a single connection request.
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, client cmd.Client) {
+	// Buffer client input until a newline.
+	buffer := getBuffer(conn)
+
+	messageJson := decodeBuffer(buffer)
+
+	var message common.Message
+	json.Unmarshal([]byte(messageJson), &message)
+
+	switch message.Action {
+
+	case common.SUBSCRIBE:
+		ps.Subscribe(&client, message.Topic)
+		fmt.Println("new subscriber to topic", message.Topic, len(ps.Subscriptions), client.Id)
+		break
+
+	case common.PUBLISH:
+		fmt.Println("This is publish new message")
+		ps.Publish(message.Topic, message.Text)
+		break
+
+	default:
+		break
+	}
+
+	// Print response message, stripping newline character.
+	log.Println("Client message:", messageJson)
+
+	// Send response message to the client.
+	conn.Write(buffer)
+
+	// Restart the process.
+	handleConnection(conn, client)
+}
+
+func getBuffer(conn net.Conn) []byte {
 	// Buffer client input until a newline.
 	buffer, err := bufio.NewReader(conn).ReadBytes('\n')
 
@@ -68,16 +100,11 @@ func handleConnection(conn net.Conn) {
 	if err != nil {
 		fmt.Println("Client left.")
 		conn.Close()
-		return
+		return nil
 	}
-
-	// Print response message, stripping newline character.
-	log.Println("Client message:", string(buffer[:len(buffer)-1]))
-
-	// Send response message to the client.
-	conn.Write(buffer)
-
-	// Restart the process.
-	handleConnection(conn)
+	return buffer
 }
 
+func decodeBuffer(buffer []byte) string {
+	return string(buffer[:len(buffer)-1])
+}
