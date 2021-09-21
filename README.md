@@ -4,11 +4,18 @@
 
 2) verify go `go version`
 
-3) run the broker `go run /broker/broker.go` or using [run] button in your IDE
+3) run the broker `go run broker/broker.go` or using [run] button in your IDE
 
-4) run the publisher `go run /publisher/publisher.go` or using [run] button in your IDE
+4) run the subscriber `go run subscriber/sub.go` or using [run] button in your IDE
 
-### References:
+5) write the topic in console 
+
+6) run the publisher `go run publisher/publisher.go` or using [run] button in your IDE
+
+5) write the topic and message
+
+
+## References:
 
 [using sockets in go](https://alexeykalina.github.io/technologies/sockets-go.html)
 
