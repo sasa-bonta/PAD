@@ -44,52 +44,59 @@ func main() {
 		}
 
 		fmt.Println("---------------------------------------")
-
 		// Print client connection address.
 		fmt.Println("Client " + conn.RemoteAddr().String() + " connected.")
-
 		// Adding new client to the list of clients
 		ps.AddClient(&client)
 
-		// Handle connections concurrently in a new goroutine.
-		go handleConnection(conn, client)
+		// Buffer client input until a newline.
+		buffer := getBuffer(conn)
+		messageJson := decodeBuffer(buffer)
+		var message common.Message
+		json.Unmarshal([]byte(messageJson), &message)
+
+		// Verify type of client
+		switch message.Action {
+
+		case common.SUBSCRIBE:
+			ps.Subscribe(&client, message.Topic)
+			fmt.Println("new subscriber to topic", message.Topic, len(ps.Subscriptions), client.Id)
+			break
+
+		case common.PUBLISH:
+			fmt.Println("This is publish new message")
+			ps.Publish(message.Topic, message.Text)
+			go handlePublisher(conn)
+			break
+
+		default:
+			break
+		}
+
+		// Print response message, stripping newline character.
+		log.Println("Client message:", messageJson)
+		// Send response message to the client.
+		conn.Write(buffer)
 	}
 }
 
-// handleConnection handles logic for a single connection request.
-func handleConnection(conn net.Conn, client cmd.Client) {
+func handlePublisher(conn net.Conn) {
 	// Buffer client input until a newline.
-	buffer := getBuffer(conn)
+	buffer, err := bufio.NewReader(conn).ReadBytes('\n')
+	// Close left clients.
+	if err != nil {
+		fmt.Println("Client left.")
+		conn.Close()
+	}
 
 	messageJson := decodeBuffer(buffer)
-
 	var message common.Message
 	json.Unmarshal([]byte(messageJson), &message)
 
-	switch message.Action {
-
-	case common.SUBSCRIBE:
-		ps.Subscribe(&client, message.Topic)
-		fmt.Println("new subscriber to topic", message.Topic, len(ps.Subscriptions), client.Id)
-		break
-
-	case common.PUBLISH:
-		fmt.Println("This is publish new message")
-		ps.Publish(message.Topic, message.Text)
-		break
-
-	default:
-		break
-	}
-
-	// Print response message, stripping newline character.
-	log.Println("Client message:", messageJson)
-
-	// Send response message to the client.
+	fmt.Println("This is publish new message")
+	ps.Publish(message.Topic, message.Text)
 	conn.Write(buffer)
-
-	// Restart the process.
-	handleConnection(conn, client)
+	handlePublisher(conn)
 }
 
 func getBuffer(conn net.Conn) []byte {
