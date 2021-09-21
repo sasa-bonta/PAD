@@ -4,15 +4,17 @@
 
 2) verify go `go version`
 
-3) run the broker `go run broker/broker.go` or using [run] button in your IDE
+3) install external libraries `go get github.com/satori/go.uuid`
 
-4) run the subscriber `go run subscriber/sub.go` or using [run] button in your IDE
+4) run the broker `go run broker/broker.go` or using [run] button in your IDE
 
-5) write the topic in console 
+5) run the subscriber `go run subscriber/sub.go` or using [run] button in your IDE
 
-6) run the publisher `go run publisher/publisher.go` or using [run] button in your IDE
+6) write the topic in console 
 
-5) write the topic and message
+7) run the publisher `go run publisher/publisher.go` or using [run] button in your IDE
+
+8) write the topic and message
 
 
 ## References:
