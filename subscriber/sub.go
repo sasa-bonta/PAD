@@ -39,13 +39,15 @@ func main() {
 	// Print server relay.
 	log.Print("Server relay: " + message)
 
-	fmt.Println("waiting for messages")
-	// run loop forever, until exit.
-	for {
-		// Listen for relay.
-		message, _ := bufio.NewReader(conn).ReadString('\n')
+	handleSub(conn)
+}
 
-		// Print server relay.
-		log.Print("Server relay: " + message)
-	}
+// run loop forever, until exit.
+func handleSub(conn net.Conn) {
+	// Listen for relay.
+	message, _ := bufio.NewReader(conn).ReadString('\n')
+
+	// Print server relay.
+	log.Print("New message: " + message)
+	handleSub(conn)
 }

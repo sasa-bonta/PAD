@@ -2,11 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"net"
 )
 
-func (ps *ClientsList) AddClient(client *Client) *ClientsList {
+func (ps *ClientsList) AddClient(client *Client, conn net.Conn) *ClientsList {
 	ps.Clients = append(ps.Clients, *client)
-	fmt.Println("adding new client to the list", client.Id, len(ps.Clients))
+	fmt.Println("New client address:", conn.RemoteAddr().String(), " id:", client.Id, " total:", len(ps.Clients))
 	return ps
 }
 

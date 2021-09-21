@@ -47,7 +47,7 @@ func main() {
 		// Print client connection address.
 		fmt.Println("Client " + conn.RemoteAddr().String() + " connected.")
 		// Adding new client to the list of clients
-		ps.AddClient(&client)
+		ps.AddClient(&client, conn)
 
 		// Buffer client input until a newline.
 		buffer := getBuffer(conn)

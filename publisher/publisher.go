@@ -20,10 +20,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	handleSub(conn)
+	handlePub(conn)
 }
 
-func handleSub(conn net.Conn) {
+func handlePub(conn net.Conn) {
 	// Create new reader from Stdin.
 	reader := bufio.NewReader(os.Stdin)
 	// Prompting message.
@@ -34,8 +34,9 @@ func handleSub(conn net.Conn) {
 	fmt.Print("Message: ")
 	// Read in input until newline, Enter key.
 	text, _ := reader.ReadString('\n')
+	text = strings.TrimSpace(text)
 
-	messageTopic := &common.Message{Action: common.PUBLISH, Topic: topic, Text: strings.TrimSpace(text)}
+	messageTopic := &common.Message{Action: common.PUBLISH, Topic: topic, Text: text}
 	messageToSend, _ := json.Marshal(messageTopic)
 	messageJson := string(messageToSend) + "\n"
 
@@ -46,5 +47,5 @@ func handleSub(conn net.Conn) {
 	// Print server relay.
 	log.Print("Server relay: " + message)
 
-	handleSub(conn)
+	handlePub(conn)
 }
