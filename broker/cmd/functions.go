@@ -9,10 +9,8 @@ import (
 )
 
 func GetBuffer(conn net.Conn) []byte {
-	// Buffer client input until a newline.
 	buffer, err := bufio.NewReader(conn).ReadBytes('\n')
 
-	// Close left clients.
 	if err != nil {
 		fmt.Println("Client left.")
 		CloseConnection(conn)

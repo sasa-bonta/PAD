@@ -5,5 +5,3 @@ const ConnectionType = "tcp"
 
 const PUBLISH = "publish"
 const SUBSCRIBE = "subscribe"
-
-//const UNSUBSCRIBE = "unsubscribe"

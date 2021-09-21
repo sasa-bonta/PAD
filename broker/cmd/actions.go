@@ -11,8 +11,6 @@ import (
 func (ps *ClientsList) AddClient(client *Client, conn net.Conn) *ClientsList {
 	ps.Clients = append(ps.Clients, *client)
 	fmt.Print("New client address:", conn.RemoteAddr().String())
-	//fmt.Print(" id:", client.Id)
-	//fmt.Print(" total:", len(ps.Clients))
 	log.Print("\n")
 	return ps
 }
