@@ -1,3 +1,5 @@
+### go pubsub message broker
+
 # Getting started
 
 1) install go https://golang.org/doc/install
@@ -15,6 +17,10 @@
 7) run the publisher `go run publisher/publisher.go` or using [run] button in your IDE
 
 8) write the topic and message
+
+## Demo
+
+![img.png](images/img.png)
 
 
 ## References:
