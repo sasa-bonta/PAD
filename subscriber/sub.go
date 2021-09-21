@@ -2,6 +2,7 @@ package main
 
 import (
 	"PAD1/common"
+	"PAD1/subscriber/cmd"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -28,12 +29,12 @@ func main() {
 	topic, _ := reader.ReadString('\n') // Prompting message.
 	topic = strings.ToLower(strings.TrimSpace(topic))
 
-	messageTopic := &common.Message{Action: common.SUBSCRIBE, Topic: topic}
-	messageToSend, _ := json.Marshal(messageTopic)
-	messageJson := string(messageToSend) + "\n"
+	messageObj := &common.Message{Action: common.SUBSCRIBE, Topic: topic}
+	messageJson, _ := json.Marshal(messageObj)
+	messageToSend := string(messageJson) + "\n"
 
 	// Send to socket connection.
-	conn.Write([]byte(messageJson))
+	cmd.WriteToConnection(conn, []byte(messageToSend))
 	// Listen for relay.
 	message, _ := bufio.NewReader(conn).ReadString('\n')
 	// Print server relay.
@@ -45,9 +46,10 @@ func main() {
 // run loop forever, until exit.
 func handleSub(conn net.Conn) {
 	// Listen for relay.
-	message, _ := bufio.NewReader(conn).ReadString('\n')
-
+	messageJson, _ := bufio.NewReader(conn).ReadString('\n')
+	var message common.Message
+	cmd.UnmarshalJsonToMessage(messageJson, &message)
 	// Print server relay.
-	log.Print("New message: " + message)
+	log.Print("New message: " + message.Text)
 	handleSub(conn)
 }

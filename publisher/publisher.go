@@ -2,6 +2,7 @@ package main
 
 import (
 	"PAD1/common"
+	"PAD1/publisher/cmd"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -36,12 +37,12 @@ func handlePub(conn net.Conn) {
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimSpace(text)
 
-	messageTopic := &common.Message{Action: common.PUBLISH, Topic: topic, Text: text}
-	messageToSend, _ := json.Marshal(messageTopic)
-	messageJson := string(messageToSend) + "\n"
+	messageObj := &common.Message{Action: common.PUBLISH, Topic: topic, Text: text}
+	messageJson, _ := json.Marshal(messageObj)
+	messageToSend := string(messageJson) + "\n"
 
 	// Send to socket connection.
-	conn.Write([]byte(messageJson))
+	cmd.WriteToConnection(conn, []byte(messageToSend))
 	// Listen for relay.
 	message, _ := bufio.NewReader(conn).ReadString('\n')
 	// Print server relay.

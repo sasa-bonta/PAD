@@ -1,13 +1,19 @@
 package cmd
 
 import (
+	"PAD1/common"
+	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 )
 
 func (ps *ClientsList) AddClient(client *Client, conn net.Conn) *ClientsList {
 	ps.Clients = append(ps.Clients, *client)
-	fmt.Println("New client address:", conn.RemoteAddr().String(), " id:", client.Id, " total:", len(ps.Clients))
+	fmt.Print("New client address:", conn.RemoteAddr().String())
+	//fmt.Print(" id:", client.Id)
+	//fmt.Print(" total:", len(ps.Clients))
+	log.Print("\n")
 	return ps
 }
 
@@ -32,8 +38,10 @@ func (ps *ClientsList) Publish(topic string, message string) {
 
 	for _, sub := range subscriptions {
 		fmt.Printf("Sending to client id %s message is %s \n", sub.Client.Id, message)
-		message = message + "\n"
-		sub.Client.Connection.Write([]byte(message))
+		messageObj := &common.Message{Action: common.PUBLISH, Topic: topic, Text: message}
+		messageJson, _ := json.Marshal(messageObj)
+		messageToSend := string(messageJson) + "\n"
+		WriteToConnection(sub.Client.Connection, []byte(messageToSend))
 	}
 }
 

@@ -4,7 +4,6 @@ import (
 	"PAD1/broker/cmd"
 	"PAD1/common"
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"github.com/satori/go.uuid"
 	"log"
@@ -27,7 +26,9 @@ func main() {
 		os.Exit(1)
 	}
 	// Close the listener when the application closes.
-	defer l.Close()
+	defer func(l net.Listener) {
+		cmd.CloseListener(l)
+	}(l)
 
 	// run loop forever, until exit.
 	for {
@@ -43,17 +44,15 @@ func main() {
 			Connection: conn,
 		}
 
-		fmt.Println("---------------------------------------")
 		// Print client connection address.
 		fmt.Println("Client " + conn.RemoteAddr().String() + " connected.")
 		// Adding new client to the list of clients
 		ps.AddClient(&client, conn)
 
 		// Buffer client input until a newline.
-		buffer := getBuffer(conn)
-		messageJson := decodeBuffer(buffer)
+		buffer := cmd.GetBuffer(conn)
 		var message common.Message
-		json.Unmarshal([]byte(messageJson), &message)
+		messageJson := cmd.UnmarshalBufferToMessage(buffer, &message)
 
 		// Verify type of client
 		switch message.Action {
@@ -76,7 +75,7 @@ func main() {
 		// Print response message, stripping newline character.
 		log.Println("Client message:", messageJson)
 		// Send response message to the client.
-		conn.Write(buffer)
+		cmd.WriteToConnection(conn, buffer)
 	}
 }
 
@@ -86,32 +85,14 @@ func handlePublisher(conn net.Conn) {
 	// Close left clients.
 	if err != nil {
 		fmt.Println("Client left.")
-		conn.Close()
+		cmd.CloseConnection(conn)
 	}
 
-	messageJson := decodeBuffer(buffer)
 	var message common.Message
-	json.Unmarshal([]byte(messageJson), &message)
+	cmd.UnmarshalBufferToMessage(buffer, &message)
 
 	fmt.Println("This is publish new message")
 	ps.Publish(message.Topic, message.Text)
-	conn.Write(buffer)
+	cmd.WriteToConnection(conn, buffer)
 	handlePublisher(conn)
-}
-
-func getBuffer(conn net.Conn) []byte {
-	// Buffer client input until a newline.
-	buffer, err := bufio.NewReader(conn).ReadBytes('\n')
-
-	// Close left clients.
-	if err != nil {
-		fmt.Println("Client left.")
-		conn.Close()
-		return nil
-	}
-	return buffer
-}
-
-func decodeBuffer(buffer []byte) string {
-	return string(buffer[:len(buffer)-1])
 }
