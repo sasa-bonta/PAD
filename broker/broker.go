@@ -86,6 +86,7 @@ func handlePublisher(conn net.Conn) {
 	if err != nil {
 		fmt.Println("Client left.")
 		cmd.CloseConnection(conn)
+		return
 	}
 
 	var message common.Message
