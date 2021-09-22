@@ -25,6 +25,7 @@ func GetBuffer(conn net.Conn) []byte {
 func DecodeBuffer(buffer []byte) string {
 	if len(buffer) < 2 {
 		fmt.Println("Cannot decode empty buffer")
+		os.Exit(1)
 	}
 	return string(buffer[:len(buffer)-1])
 }
