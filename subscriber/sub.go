@@ -37,6 +37,9 @@ func main() {
 }
 
 func handleSub(conn net.Conn) {
+	defer func(conn net.Conn) {
+		cmd.CloseConnection(conn)
+	}(conn)
 	messageJson, _ := bufio.NewReader(conn).ReadString('\n')
 	var message common.Message
 	cmd.UnmarshalJsonToMessage(messageJson, &message)
