@@ -24,3 +24,11 @@ func WriteToConnection(conn net.Conn, buffer []byte) {
 		os.Exit(1)
 	}
 }
+
+func CloseConnection(conn net.Conn) {
+	err := conn.Close()
+	if err != nil {
+		fmt.Println("Cannot close connection")
+		os.Exit(1)
+	}
+}
