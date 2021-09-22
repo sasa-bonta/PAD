@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"os"
 )
 
 func GetBuffer(conn net.Conn) []byte {
@@ -39,6 +40,7 @@ func CloseConnection(conn net.Conn) {
 	err := conn.Close()
 	if err != nil {
 		fmt.Println("Cannot close connection")
+		os.Exit(1)
 	}
 }
 
@@ -46,6 +48,7 @@ func CloseListener(conn net.Listener) {
 	err := conn.Close()
 	if err != nil {
 		fmt.Println("Cannot close listener")
+		os.Exit(1)
 	}
 }
 
@@ -53,5 +56,6 @@ func WriteToConnection(conn net.Conn, buffer []byte) {
 	_, err := conn.Write(buffer)
 	if err != nil {
 		fmt.Println("Cannot write to connection")
+		os.Exit(1)
 	}
 }
