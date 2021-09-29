@@ -1,4 +1,4 @@
-### go pubsub message broker
+### go pubsub message broker using sockets
 
 # Getting started
 
